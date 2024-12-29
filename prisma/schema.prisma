@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String
+  role     Role    @default(user)
+}
+
+model Category {
+  id      String    @id @default(uuid())
+  name    String    @unique
+  Account Account[]
+}
+
+model Supplier {
+  id      String    @id @default(uuid())
+  name    String    @default("-")
+  company String    @unique @default("-")
+  contact String    @default("-")
+  Account Account[]
+}
+
+model Account {
+  id             String            @id @default(uuid())
+  numberProfiles Int               @default(1)
+  email          String            @default("")
+  password       String            @default("")
+  iv             String            @default("")
+  categoryId     String
+  supplierId     String
+  purchaseDate   DateTime
+  renewalDate    DateTime
+  profiles       Profile[]
+  renewals       RenewalAccounts[]
+  categoria      Category          @relation(fields: [categoryId], references: [id])
+  proveedor      Supplier          @relation(fields: [supplierId], references: [id])
+}
+
+model Profile {
+  id        String  @id @default(uuid())
+  name      String  @default("")
+  pin       String
+  status    Boolean
+  rental    Rental?
+  accountId String
+  accounts  Account @relation(fields: [accountId], references: [id])
+}
+
+model Rental {
+  id           String           @id @default(uuid())
+  user         String           @default("")
+  phone        String           @default("")
+  purchaseDate DateTime
+  renewalDate  DateTime
+  renewals     RenewalProfile[]
+  profileId    String           @unique
+  perfil       Profile          @relation(fields: [profileId], references: [id])
+}
+
+model RenewalProfile {
+  id           String   @id @default(uuid())
+  purchaseDate DateTime
+  renewalDate  DateTime
+  numberMonths Int
+  total        Float
+  price        Float
+  rentalId     String
+  rental       Rental   @relation(fields: [rentalId], references: [id])
+}
+
+model RenewalAccounts {
+  id           String   @id @default(uuid())
+  purchaseDate DateTime
+  numberMonths Int      @default(1)
+  renewalDate  DateTime
+  price        Float    @default(0)
+  total        Float    @default(0)
+  accountId    String
+  accounts     Account  @relation(fields: [accountId], references: [id])
+}
+
+model FinancialReport {
+  id         String @id @default(uuid())
+  category   String @default("-")
+  categoryId String @default("-")
+  supplier   String @default("-")
+  supplierId String @default("-")
+  email      String @default("-")
+  accountId  String @default("-")
+  entries    Float  @default(0)
+  expenses   Float  @default(0)
+  utility    Float  @default(0)
+}

@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  alexDB:
+    image: postgres:16.4
+    container_name: alex-db
+    restart: always
+    ports:
+      - 5432:5432 
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
